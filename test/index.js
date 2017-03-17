@@ -437,4 +437,3 @@ describe("# restartRegistration", function () {
     });
   });
 });
-
