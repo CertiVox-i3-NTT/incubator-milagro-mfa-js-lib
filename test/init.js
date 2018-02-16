@@ -17,9 +17,11 @@ specific language governing permissions and limitations
 under the License.
 */
 
+CTX = require("milagro-crypto-js");
+
 //if browser
 var inits = function () {
-  var Errors, MPINAuth, MPIN, testData, testLocalStorage, testLocalStorage2;
+  var Errors, testData, testLocalStorage, testLocalStorage2;
 
   Errors = [];
   Errors.missingUserId = "MISSING_USERID";
@@ -30,32 +32,6 @@ var inits = function () {
   Errors.wrongPin = "WRONG_PIN";
   Errors.wrongFlow = "WRONG_FLOW";
   Errors.userRevoked = "USER_REVOKED";
-
-  //overwrite global crypto function
-  MPINAuth = {};
-  MPINAuth.addShares = function () {
-    return "040a23a7e6d381a6dbd8b806013f07d40be36b42723ad3b1d986e4bbbe9ece83f421c504a4258cf87251af4ea7e847e4da46730034fc880f92d885c419716cb944";
-  };
-  MPINAuth.calculateMPinToken = function () {
-    return "04236eb28be98764e379049a2c4371752e7e3adc99a844800b9de2c34d2c70d95b07354c556276cbf79cee9e601807e6166d9bffedc3c1b1909ab5bf63330e2131";
-  };
-  MPINAuth.pass1Request = function () {
-    return {};
-  };
-  MPINAuth.pass2Request = function () {
-    return {};
-  };
-
-  MPIN = {};
-  MPIN.stringtobytes = function () {
-    return "";
-  }
-  MPIN.HASH_ID = function () {
-    return "";
-  }
-  MPIN.bytestostring = function () {
-    return "";
-  }
 
   testData = {};
   testData.serverUrl = "http://192.168.10.63:8005";
@@ -128,8 +104,6 @@ var inits = function () {
 
   return {
     Errors: Errors,
-    MPINAuth: MPINAuth,
-    MPIN: MPIN,
     testData: testData,
     testLocalStorage: testLocalStorage,
     testLocalStorage2: testLocalStorage2

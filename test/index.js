@@ -28,8 +28,6 @@ if (typeof require !== 'undefined') {
 var Errors, testData, testLocalstorage, testLocalStorage2;
 
 Errors = inits.Errors;
-MPINAuth = inits.MPINAuth;
-MPIN = inits.MPIN;
 testData = inits.testData;
 testLocalstorage = inits.testLocalStorage;
 testLocalStorage2 = inits.testLocalStorage2;

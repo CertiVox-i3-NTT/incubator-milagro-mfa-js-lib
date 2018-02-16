@@ -19,7 +19,7 @@ under the License.
 
 //if browser
 var empin_inits = function () {
-  var Errors, MPINAuth, MPIN, testData, testLocalStorage, testLocalStorage2;
+  var Errors, testData, testLocalStorage, testLocalStorage2, testAuthData, testActivationData, testCalcClientSecretData;
 
   Errors = [];
   Errors.missingUserId = "MISSING_USERID";
@@ -31,60 +31,12 @@ var empin_inits = function () {
   Errors.wrongFlow = "WRONG_FLOW";
   Errors.userRevoked = "USER_REVOKED";
   Errors.timeoutFinish = "TIMEOUT_FINISH";
+  Errors.requestExpired = "REQUEST_EXPIRED";
+  Errors.identityNotAuthorized = "IDENTITY_NOT_AUTHORIZED";
+  Errors.incorrectAccessNumber = "INCORRECT_ACCESS_NUMBER";
   Errors.missingActivationCode = "MISSING_ACTIVATION_CODE";
   Errors.invalidActivationCode = "INVALID_ACTIVATION_CODE";
   Errors.maxAttemptsCountOver = "MAX_ATTEMPTS_COUNT_OVER";
-
-  //overwrite global crypto function
-  MPINAuth = {};
-  MPINAuth.addShares = function () {
-    return "040a23a7e6d381a6dbd8b806013f07d40be36b42723ad3b1d986e4bbbe9ece83f421c504a4258cf87251af4ea7e847e4da46730034fc880f92d885c419716cb944";
-  };
-  MPINAuth.calculateMPinToken = function () {
-    return "04236eb28be98764e379049a2c4371752e7e3adc99a844800b9de2c34d2c70d95b07354c556276cbf79cee9e601807e6166d9bffedc3c1b1909ab5bf63330e2131";
-  };
-  MPINAuth.pass1Request = function () {
-    return {};
-  };
-  MPINAuth.pass2Request = function () {
-    return {};
-  };
-
-  eMpinAuth = {};
-  eMpinAuth.activationCheck = function() {
-    return {
-      MpinId: "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30352d31312031373a35333a35382e333138383232222c2022757365724944223a20227465737440757365722e6964222c202273616c74223a20223934633531353366616435353236316666656231653239626164396439336536227d",
-      U: "0410088291e8b416bb42459812545adb49559d87b5bcbe925d2c4c5ae6c0c76d9a1c9d2d4893de63a370899ddcf2be8ef514cbd8b869fcfb5a1e7970a6555f1967",
-      V: "040d5462cea71a0e894690a1c339962e8ff57b3e0f379375d89b29cfeafe53fe641d74e570817d135ca5c150267bbb1e38ab6486951a0aa392f745bf7ded212ef8"
-    };
-  };
-  eMpinAuth.calcClientSecretWithActivationCode = function() {
-    return "04203ddb03ff81d0ee3a69922b71e33937eb106c912faf4d4b08728a4100274fab00623906abbcb73d5ab1e4d50e65046af29ed9c18ccad3bb30c0ccf935b03d7b";
-  };
-  eMpinAuth.authenticate = function() {
-    return {
-      userId: "test@user.id",
-      client_curren_time: "154a1301528",
-      tokenHex: "0419a1678856dcaa871a2fdabeba9920c04c6c7c4abc57cb8a0bff9d279227b00118c9c56fd10ac84a817fa3a1f52d2200eeebd84ac76538b5a8effdbf514d5798"
-    }
-  };
-  eMpinAuth.calcClientSecretWithStringPin = function() {
-    return '0419a1678856dcaa871a2fdabeba9920c04c6c7c4abc57cb8a0bff9d279227b00118c9c56fd10ac84a817fa3a1f52d2200eeebd84ac76538b5a8effdbf514d5798';
-  };
-  eMpinAuth.getTime = function() {
-    return Date.now();
-  };
-
-  MPIN = {};
-  MPIN.stringtobytes = function () {
-    return "";
-  }
-  MPIN.HASH_ID = function () {
-    return "";
-  }
-  MPIN.bytestostring = function () {
-    return "";
-  }
 
   testData = {};
   testData.serverUrl = "http://192.168.10.63:8005";
@@ -94,7 +46,34 @@ var empin_inits = function () {
     registerURL: "http://192.168.10.63:8011/rps/user",
     signatureURL: "http://192.168.10.63:8011/rps/signature",
     certivoxURL: "https://community-api.certivox.net/v3/",
-    timePermitsURL: "http://192.168.10.63:8011/rps/timePermit"
+    timePermitsURL: "http://192.168.10.63:8011/rps/timePermit",
+    accessNumberUseCheckSum: true,
+    accessNumberDigits: 7,
+    supportedProtocols: ["1pass", "2pass"],
+    cSum: 1
+  };
+  testData.clientSettings2 = {
+    requestOTP: false,
+    mpinAuthServerURL: "http://192.168.10.63:8011/rps",
+    registerURL: "http://192.168.10.63:8011/rps/user",
+    signatureURL: "http://192.168.10.63:8011/rps/signature",
+    certivoxURL: "https://community-api.certivox.net/v3/",
+    timePermitsURL: "http://192.168.10.63:8011/rps/timePermit",
+    accessNumberUseCheckSum: true,
+    accessNumberDigits: 6,
+    cSum: 0
+  };
+  testData.clientSettings3 = {
+    requestOTP: false,
+    mpinAuthServerURL: "http://192.168.10.63:8011/rps",
+    registerURL: "http://192.168.10.63:8011/rps/user",
+    signatureURL: "http://192.168.10.63:8011/rps/signature",
+    certivoxURL: "https://community-api.certivox.net/v3/",
+    timePermitsURL: "http://192.168.10.63:8011/rps/timePermit",
+    accessNumberUseCheckSum: true,
+    accessNumberDigits: 7,
+    supportedProtocols: ["3pass"],
+    cSum: 1
   };
   testData.mpin = {
     mpinId: "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30352d31312031373a34373a31372e323730373137222c2022757365724944223a20227465737440757365722e6964222c202273616c74223a20223563646431393762343434363831323638613838393332613932383833363139227d",
@@ -128,6 +107,18 @@ var empin_inits = function () {
     result: true,
     version: "3"
   };
+  testData.verifyError = {
+    message: "eMpin Activation is invalid.",
+    result: false,
+    version: "3"
+  };
+  testData.cs1 = {
+    clientSecretShare: "0421e379eb45e56ce699f0a7a83b683e84944b63fcc93a2834a4769ea40a28dc3f2064cd9d64846304999e00008b0838e246d3ea06d0013f1080c1027d54630ca9",
+    params: "mobile=0&expires=2015-12-03T12%3A47%3A23Z&app_id=e340a9f240e011e5b23b06df5546c0ed&hash_mpin_id=07a9af5af89d66b969be31d3d4e29c2a0a5ad4d3e30432eed9b3915dbf52230a&signature=33e8e987b07a2d9c9f3d98f68268870ef104cd0e0b9e02ba2c55e8bbf5190913&hash_user_id="
+  };
+  testData.cs2 = {
+    clientSecret: "0409ba1a247561ab16c35df3ad0ca9846db9968fa28757005335dc2ca35188b4f51521ac97d45bbdb3a8d1c0fdfe79ab29031054534df8b7cbac12e67e4e99d685"
+  };
   testData.tp1 = {
     "timePermit": "04145085669aa20607c0da730c01c707010e546bb81cf17abc29cacfef8e162b0f097b547c7058f6bd88e55cadc721b5721ee9730bfb10fa239c5bfacdb62fa3f4",
     "signature": "39f9e16201d05dd3e369d43bd73cf0249e5bac01d5ff2975640d988e4a37b7f5",
@@ -136,9 +127,36 @@ var empin_inits = function () {
   testData.tp2 = {
     "timePermit": "040ff870574cb3c923410fdf33681beacd6ca6eeeb8858150efbf1241da9202c5604977ae285410df0d86a9976611b255a6fcbeeaf22bb398e4859ff3348bb4d87"
   };
+  testData.pass1 = {
+    "y": "1dacb1f6830de09c0697485159da2ba4ed2908a8e24a85b886ff284306738b31"
+  };
   testData.auth = {
+    "status": "authenticate",
+    "userId": "test@user.id",
+    "OTP": "155317",
     "authOTT": "b0784ab9b6759953a3c6da85bdbdbaf3"
   };
+  testData.auth2 = {
+    "status": "new",
+    "userId": "test@user.id",
+    "authOTT": ""
+  };
+
+  testData.an = {
+    "localTimeStart": 1516744365000,
+    "ttlSeconds": 300,
+    "localTimeEnd": 1516744665000,
+    "webOTT": "8ab9a0c5cb14119efd56f8447fcda268",
+    "accessNumber": 1525913
+  }
+
+  testData.qr = {
+    "localTimeStart": 1516745691000,
+    "ttlSeconds": 300,
+    "localTimeEnd": 1516745991000,
+    "webOTT": "64790198ab575b1f2902b467e83abe40",
+    "qrUrl": "http://192.168.10.63:8005#f56ed367caf24a0587e12abc52e470e4"
+  }
 
   testLocalStorage = {
     "accounts": {
@@ -171,13 +189,60 @@ var empin_inits = function () {
     "deviceName": "winChrome"
   };
 
+  testLocalStorage3 = {
+    "defaultIdentity": "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30322d30332031363a31333a32362e333030393938222c2022757365724944223a2022616161406262622e636f6d222c202273616c74223a20223237386166373433663465373034363764323334313936323262316333616231227d",
+    "version": "0.3",
+    "accounts": {
+      "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30322d30332031363a31333a32362e333030393938222c2022757365724944223a2022616161406262622e636f6d222c202273616c74223a20223237386166373433663465373034363764323334313936323262316333616231227d": {
+        "MPinPermit": "",
+      },
+      "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30322d30382030383a35383a34302e373737373130222c2022757365724944223a2022646464737265406d61696c696e61746f722e636f6d222c202273616c74223a20223831373539623463313032363666646431616337323231326530643839393932227d": {
+        "MPinPermit": "042235a80c4c24f25a8a61758d3dac87d72b693c989ef95704c2ba51c7f4d98a631c912c9dc48435d9dd1af3dc17fa7d9e2af9beb16cc77bd38150c4697efdf232",
+        "token": "0412e48b124199f683e0ea6b8a1f1b073013dce21610de4b54cac74696e02003b1147d3ad7b4cef542c6ef61726dc4ffba039c90f7edd17cbeafb7c0737b41fc82",
+        "regOTT": "11adb574045ffe27e718d8b4dc665887",
+        "timePermitCache": {
+          "date": 16867,
+          "timePermit": "041c990c4087b5eeb7f4c2dbe5869794c208a22f63f6485a8905b35f542b2136a91cccf0696a6c60b2208ff1d3178da8fa661f7a52dda7db2738bfb1fe8b6cfa4b"
+        }
+      }
+    },
+    "deviceName": "winChrome"
+  };
+
+  testAuthData = {};
+  testAuthData.localEntropy = "2d1571a65f710ecf486035238b21065787a980f8bce5a93f770be6c1948fcc08";
+  testAuthData.mpinId = "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d30372d31332030393a35353a34332e383734313935222c2022757365724944223a2022617a415a30392e2123242526272a2b2f3d3f5e5f607b7c7d7e2d406c6f63616c686f7374222c202273616c74223a20223039636430363936313063333762613163303263326136633538393734666533227d";
+  testAuthData.time = "1578f22893b";
+  testAuthData.token = "040d6f3ee8377941ff0def258395dbd1216fb75154353334553a091400a0bf86880d4bc7c1d2ab1202483775bb8e5d88dce8f731a8c890e33c2b7f875df267a66e";
+  testAuthData.timePermit = "04139b6ae89f0d01b82e92622530ebbc9a90bffad928eb11bf8eec9ee5be6d4cdf00482ea508769610d15c7f1ae534ea4870ba4d2086c928b7eaba065bb0c4290a";
+  testAuthData.pin = "0369";
+  testAuthData.u = "041950bf695cb0ab35ded81db32204e37d663062771f0fce286ded73c0a20597420fac43ce0a897f3ded15da22834c64c50127e06e3d34387e0b079ceb2d87b3d5";
+  testAuthData.v = "040498b41cd6a3cbf352aae357b177a7674e09244332631cb775e1d0943745c5da04f0d96a79121ec896b3de1b3cea128800de0d5b47ce35a7129462f39709cc54";
+  testAuthData.w = "0412c0651e731b5d4b7a6a0a1a52f432d74d6091551c6041d1456a925c81b4d4941c0149c0354993b4ee89305d57478624f10fdde3cde740acc6481595c83d4f30";
+  testAuthData.nonce = "af0e1fcd3e4f9c1a2f36ffeb1c614d5f5c8b8fdac935c3ec8741e4f6365938ef";
+  testAuthData.cct = "1578f22893b";
+
+  testActivationData = {};
+  testActivationData.mpinId = "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d31302d30352030343a33383a35392e303737353235222c2022757365724944223a2022726f6f74406c6f63616c686f7374222c202273616c74223a20226331333933323132343037306165393961653239663364626332323565633133227d";
+  testActivationData.clientSecret = "04085d31ae03beefbbec5dfbfea648033746ac79caf6b3b562047c5c73b10f8fe62275b1b0e4c4ce304aaa6609143baf01e0a3b9810162e393c94ec3b19d7cd1b4";
+  testActivationData.u = "041e578d246b71d00e995cdc4618996f2e6a571ab5ea1f7d406b496a69ff25502605f2d5e426298b86bdc891e4a57c0ae82acbb697b1db70620d3daf6a8f937347";
+  testActivationData.v = "0404978d69b3972983fd45e5b85de1717aa93b799faaaa357126d987658f31c7f8006fa7b4eba537b2776b7eaad83dfc1c02e643c628cbbc550bc0cac14735c81a";
+
+  testCalcClientSecretData = {};
+  testCalcClientSecretData.mpinId = "7b226d6f62696c65223a20302c2022697373756564223a2022323031362d31302d30352030353a32343a34392e313332363834222c2022757365724944223a2022726f6f74406c6f63616c686f7374222c202273616c74223a20226666653265353530313133306565363165626239396465386132376633333839227d";
+  testCalcClientSecretData.clientSecret = "040d14b7e361c52028946bb0c9ba2c7b3c845d205a0d0d6c441ca257ad0624b3c1131810ef3bc5030fb0c1a85b8bc86e950e1d4149ddfe1b45b68852fa0d426b52";
+  testCalcClientSecretData.ActivationCode = 922663046386;
+  testCalcClientSecretData.pin = "0369";
+
   return {
     Errors: Errors,
-    MPINAuth: MPINAuth,
-    MPIN: MPIN,
     testData: testData,
     testLocalStorage: testLocalStorage,
-    testLocalStorage2: testLocalStorage2
+    testLocalStorage2: testLocalStorage2,
+    testLocalStorage3: testLocalStorage3,
+    testAuthData: testAuthData,
+    testActivationData: testActivationData,
+    testCalcClientSecretData: testCalcClientSecretData
   };
 }();
 
