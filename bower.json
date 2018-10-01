@@ -5,7 +5,7 @@
 		"MIRACL"
 	],
 	"dependencies": {
-		"milagro-crypto-js": "https://github.com/milagro-crypto/milagro-crypto-js.git#develop"
+		"milagro": "https://github.com/CertiVox-i3-NTT/incubator-milagro.git#master"
 	},
 	"ignore": [
 		"**/*",
